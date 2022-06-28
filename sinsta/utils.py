@@ -1,4 +1,4 @@
-import json
+import json, requests
 from datetime import datetime
 import pandas as pd
 
@@ -33,3 +33,26 @@ def saved_to_html(adr, fname=None):
     df = df[['time', 'user', 'count', 'href']]
 
     df.to_html(fname, render_links=True)
+
+    
+def search_user(username):
+    url = f'https://www.instagram.com/web/search/topsearch/?query={username}'
+    r = requests.get(url).text
+    dc = json.loads(r)
+    ls = []
+    new_dc = {}
+    for i in dc['users']:
+        new_dc['username'] = i['user']['username']
+        new_dc['pk'] = i['user']['pk']
+        new_dc['is_private'] = i['user']['is_private']
+        ls.append(new_dc)
+    return ls
+
+
+def user_to_id(username):
+    ls = search_user(username)
+    if len(ls)>0:
+        the_id = ls[0]['pk']
+    else:
+        the_id = None
+    return the_id
